@@ -1,4 +1,4 @@
-# Запуск проекта Delivery Service
+# Delivery Service
 Этот проект состоит из трёх основных сервисов, управляемых через Docker Compose:
 
 + PostgreSQL - база данных
