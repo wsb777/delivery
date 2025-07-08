@@ -1,0 +1,42 @@
+worker_processes  1;
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    sendfile        on;
+    keepalive_timeout  65;
+
+    server {
+    listen       8080;
+	location ~ ^/(api|admin)/ {
+            proxy_pass http://localhost:8000;
+	    proxy_http_version 1.1;
+	    proxy_set_header Upgrade $http_upgrade;
+	    proxy_set_header Connection "upgrade";
+	    proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Prefix /api;
+            proxy_redirect off;
+	}
+	location / {
+	 proxy_pass http://localhost:5173/;
+	 proxy_http_version 1.1;
+	 proxy_set_header Upgrade $http_upgrade;
+	 proxy_set_header Connection "upgrade";
+	}
+
+	location /static/ {
+	 alias "G:\\programming\\delivery\\delivery_service\\static\\";
+         add_header Access-Control-Allow-Origin *;
+         expires 1y;
+         add_header Cache-Control "public, no-transform";
+         autoindex off;
+        }
+   }
+}

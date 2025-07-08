@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: psgr
+    environment:
+      - POSTGRES_USER=${DATABASE_USERNAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - dbnet
+
+  delivery-backend:
+    build: 
+      context: ./delivery_service
+      args:
+        - USER_ID=1000
+        - GROUP_ID=1000
+    image: delivery_service
+    container_name: delivery_service
+    restart: always
+    command: >
+      sh -c "python manage.py collectstatic --no-input &&
+                python manage.py makemigrations &&
+                python manage.py migrate &&
+                gunicorn delivery.wsgi:application -b 0.0.0.0:8000 -w 4 --timeout 120"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_HOST=postgres
+    networks:
+      - dbnet
+    volumes:
+      - /opt/delivery/django_static:/var/www/django_static
+      - /opt/delivery/media_files:/var/www/media_files
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+
+  delivery-frontend:
+    build:
+      context: ./delivery_front
+      args: 
+        - VITE_SERVER_URL=${VITE_SERVER_URL}
+
+    container_name: delivery_frontend
+    networks:
+      - dbnet
+    ports:
+      - "3000:3000"
+
+networks:
+  dbnet:
+    driver: bridge
+
+volumes:
+  postgres-data:

@@ -1,0 +1,44 @@
+server {
+        listen 80;
+        # IP Сервера в сети
+        server_name domain_name;
+        location  /admin/ {
+            proxy_pass http://localhost:8000/admin;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Prefix /api;
+            proxy_redirect off;
+        }
+
+        location ~ ^/(api|admin)/ {
+            proxy_pass http://localhost:8000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Prefix /api;
+            proxy_redirect off;
+        }
+        location / {
+         proxy_pass http://localhost:3000/;
+         proxy_http_version 1.1;
+         proxy_set_header Upgrade $http_upgrade;
+         proxy_set_header Connection "upgrade";
+        }
+
+         location /static/ {
+        alias /opt/delivery/django_static/;
+        expires 30d;
+        access_log off;
+    }
+
+    location /media/ {
+        alias /opt/delivery/media_files/;
+        expires 30d;
+        access_log off;
+    }
+}
