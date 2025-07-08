@@ -3,9 +3,9 @@
 
 + PostgreSQL - база данных
 
-+ Django Backend - серверная часть
++ Django/DRF Backend - серверная часть
 
-+ Vite Frontend - клиентская часть
++ Vite React/TS/Redux Frontend - клиентская часть
 ## Порядок запуска для линукса
 1. Установите Docker и Docker Compose
 
